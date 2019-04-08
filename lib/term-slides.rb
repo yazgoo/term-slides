@@ -1,6 +1,6 @@
 require "term/slides/version"
 
-module Term
+module TermSlide
   class Error < StandardError; end
   require 'io/console'
   require 'colorize'
