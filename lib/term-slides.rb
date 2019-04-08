@@ -2,7 +2,6 @@ require "version"
 
 module TermSlide
   class Error < StandardError; end
-  require 'io/console'
   require 'colorize'
   require 'tty-table'
   require 'tty-command'
