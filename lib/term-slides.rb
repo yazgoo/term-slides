@@ -18,7 +18,7 @@ module TermSlide
       puts center(TTY::Table.new(table.headers, table.rows).render(:unicode))
     end
     def center text
-      width = HighLine.terminal_size.first
+      width = HighLine.terminal.terminal_size.first
       text.split("\n").map { |x| x.center(width) }.join("\n")
     end
     def render_text text
