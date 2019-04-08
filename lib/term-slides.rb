@@ -1,4 +1,4 @@
-require "term/slides/version"
+require "version"
 
 module TermSlide
   class Error < StandardError; end
