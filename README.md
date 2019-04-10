@@ -6,6 +6,8 @@ Here is an example:
 
 ![Example](examples/basic_capture.gif)
 
+Currently, image/diagram rendering is only available in [kitty](https://github.com/kovidgoyal/kitty).
+
 ## Installation
 
 Add this line to your application's Gemfile:
