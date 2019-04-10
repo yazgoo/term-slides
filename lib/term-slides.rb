@@ -1,18 +1,30 @@
 require "version"
 
-module TermSlide
+module TermSlides
   class Error < StandardError; end
   require 'colorize'
   require 'tty-table'
   require 'tty-command'
   require 'highline'
+  require 'mkmf'
+  require 'tempfile'
+
+  module MakeMakefile::Logging
+    @logfile = File::NULL
+    @quiet = true
+  end
 
   class TTYRenderer
     def render_code code
-      path = "code.#{code.format}"
+      path = Tempfile.new(['code', ".#{code.format}"]).path
       File.write(path, code.content)
-      out, err = TTY::Command.new(pty: true, printer: :null).run('vimcat', path)
-      puts out
+      vimcat = 'vimcat'
+      if find_executable vimcat
+        out, err = TTY::Command.new(pty: true, printer: :null).run(vimcat, path)
+        puts out
+      else
+        puts code
+      end
     end
     def render_table table
       puts center(TTY::Table.new(table.headers, table.rows).render(:unicode))
@@ -36,7 +48,7 @@ module TermSlide
       render_image_file diagram.build
     end
     def render_slide slide
-      puts center(slide.name.colorize(:light_blue).bold)
+      puts center(slide.name).colorize(:light_blue).bold
       puts
       slide.content.each { |c| c.render }
     end
@@ -131,9 +143,12 @@ module TermSlide
     end
     def build
       $i ||= 0
-      path = "graph#{$i}.png"
-      `echo "#{@dot.gsub('"', '\\"')}" | dot -Tpng > #{path}`
-      $i += 1
+      path = Tempfile.new(['graph', ".png"]).path
+      dot = 'dot'
+      if find_executable dot
+        `echo "#{@dot.gsub('"', '\\"')}" | #{dot} -Tpng > #{path}`
+        $i += 1
+      end
       path
     end
     def render
@@ -218,13 +233,14 @@ module TermSlide
             slide.render
           end
         else
+          print `clear`
           @slides[@args[0].to_i].render
         end
         return
       end
       while true
-        puts `clear`
-        puts "#{i + 1}/#{@slides.size}"
+        print `clear`
+        puts "\u202e#{i + 1}/#{@slides.size}"
         @slides[i].render
         s = read_char
         if s == "q"
