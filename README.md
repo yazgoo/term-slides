@@ -8,6 +8,21 @@ Here is an example:
 
 Currently, image/diagram rendering is only available in [kitty](https://github.com/kovidgoyal/kitty).
 
+## Writing your presentation
+
+see examples/basic.rb
+
+## Running it
+
+just run your ruby script.
+
+Controls:
+
+  - `n`: next slide
+  - `p`: previous slide 
+  - `r`: refresh slide
+  - `q`: quit
+
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -23,10 +38,6 @@ And then execute:
 Or install it yourself as:
 
     $ gem install term-slides
-
-## Usage
-
-see examples/basic.rb
 
 ## Development
 
