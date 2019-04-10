@@ -8,7 +8,7 @@ TermSlides::Slides.new(ARGV) do
     t "t is an alias for text"
   end
   slide("code (requires vimcat)") do
-    code :ruby, """
+    code :rb, """
       def example_code(a, b)
         p a
       end

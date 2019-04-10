@@ -36,10 +36,22 @@ module TermSlides
     def render_text text
       puts center(text.text)
     end
-    def render_image_file src
-      kitty = '/Applications/kitty.app/Contents/MacOS/kitty'
-      kitty = 'kitty' unless File.exists? kitty
-      `#{kitty} +kitten icat #{src}`
+    def render_image_file path
+      commands = {
+        "kitty" => %w(kitty +kitten icat),
+        "terminology" => %w(tycat)
+      }
+      ptree = `pstree -As $$`.chomp.split("---")
+      terminals = commands.keys.map { |terminal| ptree.include?(terminal) ? terminal : nil }.select { |x| !x.nil? }
+      if terminals.size > 0
+        command = commands[terminals.first]
+      else
+        command = ["icat"]
+      end
+      if find_executable(command.first)
+        co = (command << path)
+        system(*co)
+      end
     end
     def render_image image
       render_image_file image.src
