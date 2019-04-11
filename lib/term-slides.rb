@@ -7,6 +7,7 @@ module TermSlides
   require 'tty-command'
   require 'highline'
   require 'mkmf'
+  require 'rouge'
   require 'tempfile'
 
   module MakeMakefile::Logging
@@ -16,15 +17,7 @@ module TermSlides
 
   class TTYRenderer
     def render_code code
-      path = Tempfile.new(['code', ".#{code.format}"]).path
-      File.write(path, code.content)
-      vimcat = 'vimcat'
-      if find_executable vimcat
-        out, err = TTY::Command.new(pty: true, printer: :null).run(vimcat, path)
-        puts out
-      else
-        puts code
-      end
+      puts ::Rouge.highlight(code.content, code.format, 'terminal256')
     end
     def render_table table
       puts center(TTY::Table.new(table.headers, table.rows).render(:unicode))
@@ -46,7 +39,7 @@ module TermSlides
       if terminals.size > 0
         command = commands[terminals.first]
       else
-        command = ["icat"]
+        command = %w(icat)
       end
       if find_executable(command.first)
         co = (command << path)
@@ -252,14 +245,14 @@ module TermSlides
       end
       while true
         print `clear`
-        puts "\u202e#{i + 1}/#{@slides.size}"
+        puts "#{i + 1}/#{@slides.size}"
         @slides[i].render
         s = read_char
         if s == "q"
           break
-        elsif s == "p"
+        elsif ["p", "\e[D", "\e[A", "h", "k"].include?(s)
           i -= 1 if i > 0
-        elsif s == "n"
+        elsif ["n", "\e[C", "\e[B", "l", "j"].include?(s)
           i += 1 if i < (@slides.size - 1)
         end
       end

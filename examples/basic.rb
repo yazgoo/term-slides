@@ -22,9 +22,10 @@ TermSlides::Slides.new(ARGV) do
     end
   end
   slide("diagram (requires dot (graphviz), terminal must support it)") do
-    diagram "digraph {
+    diagram 'digraph {
       a -> b
-    }"
+      dpi = 55
+    }'
   end
   slide("image (terminal must support it)") do
     image "#{File.dirname(__FILE__)}/cat.jpg"
