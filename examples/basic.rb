@@ -7,7 +7,7 @@ TermSlides::Slides.new(ARGV) do
     text ""
     t "t is an alias for text"
   end
-  slide("code (requires vimcat)") do
+  slide("code") do
     code :rb, """
       def example_code(a, b)
         p a
@@ -21,13 +21,13 @@ TermSlides::Slides.new(ARGV) do
       row :sym1, :sym2
     end
   end
-  slide("diagram (requires dot (graphviz), terminal must support it)") do
+  slide("diagram (requires dot (graphviz))") do
     diagram 'digraph {
       a -> b
       dpi = 55
     }'
   end
-  slide("image (terminal must support it)") do
+  slide("image") do
     image "#{File.dirname(__FILE__)}/cat.jpg"
   end
 end.run
