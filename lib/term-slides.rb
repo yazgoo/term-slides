@@ -46,6 +46,7 @@ module TermSlides
       commands = {
         "kitty" => %w(kitty +kitten icat),
         "terminology" => %w(tycat)
+        "iterm2" => %w(imgcat)
       }
       ptree = pstree
       terminals = commands.keys.map { |terminal| ptree.include?(terminal) ? terminal : nil }.select { |x| !x.nil? }
