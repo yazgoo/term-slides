@@ -9,6 +9,7 @@ module TermSlides
   require 'mkmf'
   require 'rouge'
   require 'tempfile'
+  require 'os'
 
   module MakeMakefile::Logging
     @logfile = File::NULL
@@ -32,7 +33,7 @@ module TermSlides
     def pstree pid = Process.pid
       processes = []
       while pid != 0
-        `/bin/ps axww -q #{pid} -o ppid,command`.each_line do |line|
+        `/bin/ps #{::OS.mac? ? "-p" : "axww -q"} #{pid} -o ppid,command`.each_line do |line|
           next if line !~ /^\s*\d+/
           line.strip!
           result = line.split(/\s+/, 2)
@@ -44,9 +45,9 @@ module TermSlides
     end
     def render_image_file path
       commands = {
-        "kitty" => %w(kitty +kitten icat),
-        "terminology" => %w(tycat)
-        "iterm2" => %w(imgcat)
+        "kitty" => [(::OS.mac? ? "/Applications/kitty.app/Contents/MacOS/" : "") + "kitty", "+kitten", "icat"],
+        "terminology" => %w(tycat),
+        "iTerm" => %w(imgcat)
       }
       ptree = pstree
       terminals = commands.keys.map { |terminal| ptree.include?(terminal) ? terminal : nil }.select { |x| !x.nil? }
