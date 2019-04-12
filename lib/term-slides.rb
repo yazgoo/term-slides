@@ -29,12 +29,25 @@ module TermSlides
     def render_text text
       puts center(text.text)
     end
+    def pstree pid = Process.pid
+      processes = []
+      while pid != 0
+        `/bin/ps axww -q #{pid} -o ppid,command`.each_line do |line|
+          next if line !~ /^\s*\d+/
+          line.strip!
+          result = line.split(/\s+/, 2)
+          processes << result[1].split(" ").first.split("/").last
+          pid = result[0].to_i
+        end
+      end
+      processes
+    end
     def render_image_file path
       commands = {
         "kitty" => %w(kitty +kitten icat),
         "terminology" => %w(tycat)
       }
-      ptree = `pstree -As $$`.chomp.split("---")
+      ptree = pstree
       terminals = commands.keys.map { |terminal| ptree.include?(terminal) ? terminal : nil }.select { |x| !x.nil? }
       if terminals.size > 0
         command = commands[terminals.first]
