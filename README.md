@@ -1,6 +1,6 @@
 # TermSlides
 
-This is a DSL to make your own presentations in the shel in the shell.
+This is a DSL to make your own presentations in the shell.
 
 Here is an example:
 
