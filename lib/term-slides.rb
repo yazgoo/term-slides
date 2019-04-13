@@ -10,6 +10,7 @@ module TermSlides
   require 'rouge'
   require 'tempfile'
   require 'os'
+  require 'term-images'
 
   module MakeMakefile::Logging
     @logfile = File::NULL
@@ -30,36 +31,8 @@ module TermSlides
     def render_text text
       puts center(text.text)
     end
-    def pstree pid = Process.pid
-      processes = []
-      while pid != 0
-        `/bin/ps #{::OS.mac? ? "-p" : "axww -q"} #{pid} -o ppid,command`.each_line do |line|
-          next if line !~ /^\s*\d+/
-          line.strip!
-          result = line.split(/\s+/, 2)
-          processes << result[1].split(" ").first.split("/").last
-          pid = result[0].to_i
-        end
-      end
-      processes
-    end
     def render_image_file path
-      commands = {
-        "kitty" => [(::OS.mac? ? "/Applications/kitty.app/Contents/MacOS/" : "") + "kitty", "+kitten", "icat"],
-        "terminology" => %w(tycat),
-        "iTerm" => %w(imgcat)
-      }
-      ptree = pstree
-      terminals = commands.keys.map { |terminal| ptree.include?(terminal) ? terminal : nil }.select { |x| !x.nil? }
-      if terminals.size > 0
-        command = commands[terminals.first]
-      else
-        command = %w(icat)
-      end
-      if find_executable(command.first)
-        co = (command << path)
-        system(*co)
-      end
+      ::TermImages::Image.new(path).puts
     end
     def render_image image
       render_image_file image.src
