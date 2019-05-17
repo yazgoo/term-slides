@@ -11,6 +11,7 @@ module TermSlides
   require 'tempfile'
   require 'os'
   require 'term-images'
+  require 'tmpdir'
 
   module MakeMakefile::Logging
     @logfile = File::NULL
@@ -75,13 +76,13 @@ module TermSlides
       puts
     end
     def render_slide slide
+      puts "----"
+      puts
       puts
       puts slide.name
       puts slide.name.gsub(/./, "=")
       puts
       slide.content.each { |c| c.render }
-      puts
-      puts "----"
       puts
     end
   end
@@ -136,7 +137,7 @@ module TermSlides
     end
     def build
       $i ||= 0
-      path = Tempfile.new(['graph', ".png"]).path
+      path = Dir.tmpdir() + "/term_slide_graph#{$i}.png"
       dot = 'dot'
       if find_executable dot
         `echo "#{@dot.gsub('"', '\\"')}" | #{dot} -Tpng > #{path}`
