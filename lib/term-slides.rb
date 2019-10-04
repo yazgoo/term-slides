@@ -137,10 +137,13 @@ module TermSlides
     end
     def build
       $i ||= 0
-      path = Dir.tmpdir() + "/term_slide_graph#{$i}.png"
+      path = "term_slide_graph#{$i}.png"
       dot = 'dot'
       if find_executable dot
-        `echo "#{@dot.gsub('"', '\\"')}" | #{dot} -Tpng > #{path}`
+        dot_contents = @dot.respond_to?(:call) ? @dot.call : @dot
+        input_path = "/tmp/graphviz-term-slides"
+        File.write(input_path, dot_contents)
+        `#{dot} #{input_path} -Tpng > #{path}`
         $i += 1
       end
       path
@@ -163,6 +166,9 @@ module TermSlides
 
   class Slide
     attr_accessor :name, :content, :renderer
+    def get_scaling_factor
+      @slides.scaling_factor
+    end
     def text s
       @content << Text.new(@renderer, s)
     end
@@ -179,7 +185,8 @@ module TermSlides
     def image src
       @content << Image.new(@renderer, src)
     end
-    def initialize renderer, name, &block
+    def initialize renderer, name, slides, &block
+      @slides = slides
       @renderer = renderer
       @name = name
       @content = []
@@ -191,10 +198,12 @@ module TermSlides
   end
 
   class Slides
+    attr_accessor :scaling_factor
     def slide name, &block
-      @slides << Slide.new(@renderer, name, &block)
+      @slides << Slide.new(@renderer, name, self, &block)
     end
     def initialize args, &block
+      @scaling_factor = 1
       @args = args
       if @args.size > 0 and @args[0] == "hovercraft"
         @renderer = HovercraftRenderer.new
@@ -239,6 +248,10 @@ module TermSlides
         s = read_char
         if s == "q"
           break
+        elsif ["+"].include?(s)
+          @scaling_factor *= 1.1
+        elsif ["-"].include?(s)
+          @scaling_factor *=  0.9
         elsif ["p", "\e[D", "\e[A", "h", "k"].include?(s)
           i -= 1 if i > 0
         elsif ["n", "\e[C", "\e[B", "l", "j"].include?(s)
