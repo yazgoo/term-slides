@@ -20,14 +20,18 @@ module TermSlides
 
   class TTYRenderer
     def render_code code
-      puts ::Rouge.highlight(code.content, code.format, 'terminal256')
+      puts center_block(code.content, ::Rouge.highlight(code.content, code.format, 'terminal256'))
     end
     def render_table table
       puts center(TTY::Table.new(table.headers, table.rows).render(:unicode))
     end
     def center text
+      center_block text, text
+    end
+    def center_block text, text_to_display
       width = HighLine.new.output_cols
-      text.split("\n").map { |x| x.center(width) }.join("\n")
+      max = text.split("\n").map { |x| x.size }.max
+      text_to_display.split("\n").map { |x| " " * ((max > width ? 0 : (width - max))/2) + x }.join("\n")
     end
     def render_text text
       puts center(text.text)
@@ -241,8 +245,10 @@ module TermSlides
         end
         return
       end
+      print "\033[?25l"
       while true
         print `clear`
+
         puts "#{i + 1}/#{@slides.size}"
         @slides[i].render
         s = read_char
@@ -258,6 +264,7 @@ module TermSlides
           i += 1 if i < (@slides.size - 1)
         end
       end
+      print "\033[?25h"
     end
   end
 end
